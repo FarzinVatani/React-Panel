@@ -1,0 +1,10 @@
+services:
+  meilisearch:
+    image: getmeili/meilisearch:v1.1
+    ports:
+      - 7700:7700
+    environment:
+      - MEILI_ENV=development
+      - MEILI_MASTER_KEY="MASTER_KEY_DEV"
+    volumes:
+      - ./meili_data:/meili_data
