@@ -5,11 +5,9 @@
 
 **NOTE**: I tested this project with **node v18.13.0**.
 
-### Prepare data
+### Prepare data and Make project up
 
-- if you want to create mock data to use for meilisearch use `node data-generator.js` command. You could change the amount of data by changing `NUMBER_OF_ROWS` value in the `data-generator.js` file.
-- Put `data.json` in the root of the project. Then run `docker compose up -d`.
-- Check if Meilisearch is working successfully.
-- Run `node load-data.js` to load the generated json file to Meilisearch.
-- You can check if data is loaded or not in `http://localhost:7700/` and select panel.
-- if you want the admin and search keys just run `node get-keys.js`
+- If there is `data.json` delete it.
+- Run `DOCKER_BUILDKIT=1 docker compose up --build` to start Meilisearch service.
+- Run `pnpm run load-data` to generate data and load it in meilisearch.
+- Check `http://localhost:3000/`.

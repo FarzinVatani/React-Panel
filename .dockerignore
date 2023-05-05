@@ -1,0 +1,7 @@
+.git/
+
+meili_data/
+data.json
+
+node_modules/
+dist/

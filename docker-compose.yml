@@ -8,3 +8,20 @@ services:
       - MEILI_MASTER_KEY="MASTER_KEY_DEV"
     volumes:
       - ./meili_data:/meili_data
+  front:
+    build:
+      dockerfile: Dockerfile
+      context: .
+      target: final
+    restart: unless-stopped
+    ports:
+      - 3000:80
+    volumes:
+      - pnpm_store:/root/.local/share/pnpm/store/v3
+      - node_module:/opt/app/node_module
+    depends_on:
+      - meilisearch
+
+volumes:
+  node_module:
+  pnpm_store:
