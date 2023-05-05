@@ -25,3 +25,4 @@ dist-ssr
 
 # Meilisearch
 meili_data/
+data.json

@@ -1,4 +1,4 @@
-import type { Status } from './utility';
+import type { Status } from "./utility";
 
 function PaymentStatus({ status }: { status: Status }) {
   switch (status) {
@@ -33,6 +33,6 @@ function PaymentStatus({ status }: { status: Status }) {
         </span>
       );
   }
-};
+}
 
 export default PaymentStatus;

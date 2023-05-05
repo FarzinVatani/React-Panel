@@ -9,4 +9,10 @@ export const TABLE_HEADERS = [
 ];
 
 export const PAYMENT_METHODS = ["Visa", "Mastercard", "Paypal"];
-export const PAYMENT_STATUS = ["Paid", "Chargeback", "Pending", "Expired", "Failed"];
+export const PAYMENT_STATUS = [
+  "Paid",
+  "Chargeback",
+  "Pending",
+  "Expired",
+  "Failed",
+];

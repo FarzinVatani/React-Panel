@@ -5,7 +5,7 @@ import { FaPlus, FaPencilAlt } from "react-icons/fa";
 import { AiFillDelete } from "react-icons/ai";
 import { IconContext } from "react-icons";
 import { useState, useEffect, MouseEvent } from "react";
-import type { Status, Method } from './utility';
+import type { Status, Method } from "./utility";
 import PaymentStatus from "./PaymentStatus";
 import { sortableAttributes, filterableAttributes, setConfig } from "./config";
 import { TABLE_HEADERS } from "./constants";
@@ -51,15 +51,22 @@ function App() {
   const [sendUpdateData, setSendUpdateData] = useState(false);
 
   const addDocument = () => {
-    client.index('panel').addDocuments([
-      { id, name, date, total, status, method }
-    ]);
-  }
+    client
+      .index("panel")
+      .addDocuments([{ id, name, date, total, status, method }]);
+  };
   const updateDocument = () => {
-    client.index('panel').updateDocuments([
-      { id: updateId, name: updateName, date: updateDate, total: updateTotal, status: updateStatus, method: updateMethod }
+    client.index("panel").updateDocuments([
+      {
+        id: updateId,
+        name: updateName,
+        date: updateDate,
+        total: updateTotal,
+        status: updateStatus,
+        method: updateMethod,
+      },
     ]);
-  }
+  };
 
   const sortClickHandler = (event: MouseEvent, column: string) => {
     event.preventDefault();
@@ -230,7 +237,7 @@ function App() {
     );
   };
 
-  const [deleteId, setDeleteId] = useState('');
+  const [deleteId, setDeleteId] = useState("");
   const setUpdateFields = (field) => {
     setUpdateId(field.id);
     setUpdateName(field.name);
@@ -238,7 +245,7 @@ function App() {
     setUpdateTotal(field.total);
     setUpdateStatus(field.status);
     setUpdateMethod(field.method);
-  }
+  };
 
   const set_rows = () => {
     calculateAndSetTotalPage();
@@ -254,7 +261,9 @@ function App() {
           <td className="pl-5">
             <span>${row["total"]}</span>
           </td>
-          <td className="pl-5"><PaymentStatus status={row["status"]} /></td>
+          <td className="pl-5">
+            <PaymentStatus status={row["status"]} />
+          </td>
           <IconContext.Provider
             value={{ className: "text-neutral-800 text-2xl" }}
           >
@@ -264,8 +273,21 @@ function App() {
           </IconContext.Provider>
           <td>
             <div className="flex w-full justify-around items-center">
-              <button className="text-green-500 text-lg" onClick={() => { setUpdateFields(row); toggleUpdateModal(); }}><FaPencilAlt /></button>
-              <button className="text-red-500 text-xl" onClick={() => setDeleteId(row["id"])}><AiFillDelete /></button>
+              <button
+                className="text-green-500 text-lg"
+                onClick={() => {
+                  setUpdateFields(row);
+                  toggleUpdateModal();
+                }}
+              >
+                <FaPencilAlt />
+              </button>
+              <button
+                className="text-red-500 text-xl"
+                onClick={() => setDeleteId(row["id"])}
+              >
+                <AiFillDelete />
+              </button>
             </div>
           </td>
         </tr>
@@ -285,12 +307,15 @@ function App() {
   }, [data]);
 
   useEffect(() => {
-    setDeleteId('');
+    setDeleteId("");
     return () => {
-      if (deleteId !== '') {
-        client.index('panel').deleteDocument(deleteId).then(() => {
-          setTimeout(fetchData, 200);
-        });
+      if (deleteId !== "") {
+        client
+          .index("panel")
+          .deleteDocument(deleteId)
+          .then(() => {
+            setTimeout(fetchData, 200);
+          });
       }
     };
   }, [deleteId]);
@@ -298,16 +323,24 @@ function App() {
   useEffect(() => {
     setSendAddData(false);
     return () => {
-      if (sendAddData) addDocument();
+      if (sendAddData) {
+        addDocument();
+        toggleAddModal();
+        setTimeout(fetchData, 200);
+      }
     };
-  }, [sendAddData])
+  }, [sendAddData]);
 
   useEffect(() => {
     setSendUpdateData(false);
     return () => {
-      if (sendUpdateData) updateDocument();
+      if (sendUpdateData) {
+        updateDocument();
+        toggleUpdateModal();
+        setTimeout(fetchData, 200);
+      }
     };
-  }, [sendUpdateData])
+  }, [sendUpdateData]);
 
   const modalContentAdd = () => {
     const fields = [id, name, date, total];
@@ -369,14 +402,25 @@ function App() {
     return (
       <div className="flex flex-col items-around space-y-2">
         {select_inputs}
-        <button onClick={() => { setSendAddData(true) }}>ADD</button>
+        <button
+          onClick={() => {
+            setSendAddData(true);
+          }}
+        >
+          ADD
+        </button>
       </div>
     );
   };
 
   const modalContentUpdate = () => {
     const fields = [updateId, updateName, updateDate, updateTotal];
-    const setFields = [setUpdateId, setUpdateName, setUpdateDate, setUpdateTotal];
+    const setFields = [
+      setUpdateId,
+      setUpdateName,
+      setUpdateDate,
+      setUpdateTotal,
+    ];
     const types = ["number", "text", "text", "number"];
 
     const inputs = () =>
@@ -436,23 +480,29 @@ function App() {
       <div className="flex flex-col items-around space-y-2">
         {select_inputs}
         <button onClick={() => setSendUpdateData(true)}>UPDATE</button>
-      </div >
+      </div>
     );
   };
 
   return (
     <>
-      <Modal show={isShowingAddModal} onCloseClick={() => {
-        toggleAddModal();
-        if (isShowingUpdateModal) toggleUpdateModal();
-      }}>
+      <Modal
+        show={isShowingAddModal}
+        onCloseClick={() => {
+          toggleAddModal();
+          if (isShowingUpdateModal) toggleUpdateModal();
+        }}
+      >
         {modalContentAdd()}
       </Modal>
 
-      <Modal show={isShowingUpdateModal} onCloseClick={() => {
-        toggleUpdateModal();
-        if (isShowingAddModal) toggleAddModal();
-      }}>
+      <Modal
+        show={isShowingUpdateModal}
+        onCloseClick={() => {
+          toggleUpdateModal();
+          if (isShowingAddModal) toggleAddModal();
+        }}
+      >
         {modalContentUpdate()}
       </Modal>
 

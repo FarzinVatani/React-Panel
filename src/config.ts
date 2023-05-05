@@ -17,4 +17,4 @@ export const setConfig = async (client: MeiliSearch) => {
     filterableAttributes,
     sortableAttributes,
   });
-}
+};
