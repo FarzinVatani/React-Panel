@@ -4,6 +4,3 @@ export function getKeys(): Promise<{
 }>;
 export const client: MeiliSearch;
 import { MeiliSearch } from "meilisearch";
-
-export type Status = "Paid" | "Chargeback" | "Pending" | "Expired" | "Failed";
-export type Method = "Visa" | "Mastercard" | "Paypal";

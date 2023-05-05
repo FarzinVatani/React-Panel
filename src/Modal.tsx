@@ -1,11 +1,18 @@
+import { MouseEventHandler } from "react";
 import ReactDOM from "react-dom";
 
-function Modal({ show, onCloseClick, children }) {
+type ModalType = {
+  show: boolean;
+  onCloseClick: MouseEventHandler<HTMLButtonElement>;
+  children: JSX.Element;
+}
+
+function Modal({ show, onCloseClick, children }: ModalType) {
   if (!show) return ReactDOM.createPortal(<></>, document.body);
 
   return ReactDOM.createPortal(
     <div className="fixed left-0 top-0 w-full h-full flex items-center justify-center z-20">
-      <div
+      <button
         className="w-full h-full absolute left-0 top-0 bg-neutral-950 opacity-70 -z-10"
         onClick={onCloseClick}
       />

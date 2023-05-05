@@ -1,4 +1,4 @@
-import type { Status } from "./utility";
+import type { Status } from "./types";
 
 function PaymentStatus({ status }: { status: Status }) {
   switch (status) {

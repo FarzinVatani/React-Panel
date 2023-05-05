@@ -5,20 +5,22 @@ import { FaPlus, FaPencilAlt } from "react-icons/fa";
 import { AiFillDelete } from "react-icons/ai";
 import { IconContext } from "react-icons";
 import { useState, useEffect, MouseEvent } from "react";
-import type { Status, Method } from "./utility";
 import PaymentStatus from "./PaymentStatus";
 import { sortableAttributes, filterableAttributes, setConfig } from "./config";
 import { TABLE_HEADERS } from "./constants";
-import { useModal } from "./hooks";
+import { useToggle } from "./hooks";
 import PaymentMethod from "./PaymentMethod";
 import Modal from "./Modal";
 
-await setConfig(client);
+import type { SetStateAction } from "react";
+import type { DataHits, Data, Status, Method } from './types';
+
+setConfig(client);
 
 function App() {
   const [sort, setSort] = useState({ column: "id", direction: "desc" });
-  const [data, setData] = useState({});
-  const [dataRows, setDataRows] = useState(<tr></tr>);
+  const [data, setData] = useState({} as Data);
+  const [dataRows, setDataRows] = useState([] as JSX.Element[]);
   const [page, setPage] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
 
@@ -30,8 +32,14 @@ function App() {
   const [filterMethod, setFilterMethod] = useState("" as Method | "");
 
   const [searchField, setSearchField] = useState("");
-  const [isShowingAddModal, toggleAddModal] = useModal();
-  const [isShowingUpdateModal, toggleUpdateModal] = useModal();
+
+  const addModal = useToggle();
+  const isShowingAddModal = addModal[0] as boolean;
+  const toggleAddModal = addModal[1] as () => void;
+
+  const updateModal = useToggle();
+  const isShowingUpdateModal = updateModal[0] as boolean;
+  const toggleUpdateModal = updateModal[1] as () => void;
 
   const [id, setId] = useState("");
   const [name, setName] = useState("");
@@ -226,7 +234,7 @@ function App() {
         limit: 20,
         offset: 20 * (page - 1),
       })
-      .then((result) => setData(result));
+      .then((result) => setData({ hits: result["hits"], estimatedTotalHits: result["estimatedTotalHits"] } as Data));
   };
 
   const calculateAndSetTotalPage = () => {
@@ -238,8 +246,8 @@ function App() {
   };
 
   const [deleteId, setDeleteId] = useState("");
-  const setUpdateFields = (field) => {
-    setUpdateId(field.id);
+  const setUpdateFields = (field: DataHits) => {
+    setUpdateId(`${field.id}`);
     setUpdateName(field.name);
     setUpdateDate(field.date);
     setUpdateTotal(field.total);
@@ -249,7 +257,7 @@ function App() {
 
   const set_rows = () => {
     calculateAndSetTotalPage();
-    const rows = data.hits?.map((row) => {
+    const rows = data?.hits?.map((row) => {
       const date = Date.parse(row["date"]);
       const formatted_date = moment(date).format("ll");
 
@@ -284,7 +292,7 @@ function App() {
               </button>
               <button
                 className="text-red-500 text-xl"
-                onClick={() => setDeleteId(row["id"])}
+                onClick={() => setDeleteId(`${row["id"]}`)}
               >
                 <AiFillDelete />
               </button>
@@ -356,7 +364,7 @@ function App() {
               className="border-2 border-neutral-400 rounded-md py-1 px-2"
               type={types[index]}
               value={fields[index]}
-              onChange={(event) => setFields[index](event.target.value)}
+              onChange={(event) => setFields[index](event.target.value as SetStateAction<number> & SetStateAction<string>)}
             />
           </label>
         );
@@ -432,7 +440,7 @@ function App() {
               className="border-2 border-neutral-400 rounded-md py-1 px-2"
               type={types[index]}
               value={fields[index]}
-              onChange={(event) => setFields[index](event.target.value)}
+              onChange={(event) => setFields[index](event.target.value as (string & number))}
               disabled={index === 0}
             />
           </label>

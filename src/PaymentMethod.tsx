@@ -1,4 +1,4 @@
-import { Method } from "./utility";
+import { Method } from "./types";
 import { FaCcVisa, FaCcMastercard, FaCcPaypal } from "react-icons/fa";
 
 const PaymentMethod = ({ method }: { method: Method }) => {
