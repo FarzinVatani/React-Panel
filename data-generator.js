@@ -16,7 +16,6 @@ function createMockData() {
       id: i + 1,
       name: [faker.name.firstName(), faker.name.lastName()].join(" "),
       date: date,
-      date_timestamp: date.getTime() / 1000,
       total: Math.round(Math.random() * 1000 + Math.random() * 100 + Math.random() * 10),
       status: statuses[Math.floor(Math.random() * statuses.length)],
       method: methods[Math.floor(Math.random() * methods.length)]
