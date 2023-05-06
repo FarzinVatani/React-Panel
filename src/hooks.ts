@@ -6,7 +6,7 @@ export const useToggle = () => {
   const toggle = (): void => {
     setIsShowing(!isShowing);
     return;
-  }
+  };
 
   return [isShowing, toggle];
 };

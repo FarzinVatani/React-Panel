@@ -15,8 +15,17 @@ export type DataHits = {
 export type Data = {
   hits: DataHits[];
   estimatedTotalHits: number;
-}
+};
 
-export type DataRow = { id: string; name: string; date: string; total: number; status: string; method: string };
+export type DataRow = {
+  id: string;
+  name: string;
+  date: string;
+  total: number;
+  status: string;
+  method: string;
+};
 
-export type InputStateSetter = Dispatch<SetStateAction<string>> | Dispatch<SetStateAction<number>>;
+export type InputStateSetter =
+  | Dispatch<SetStateAction<string>>
+  | Dispatch<SetStateAction<number>>;

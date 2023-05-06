@@ -5,7 +5,7 @@ type ModalType = {
   show: boolean;
   onCloseClick: MouseEventHandler<HTMLButtonElement>;
   children: JSX.Element;
-}
+};
 
 function Modal({ show, onCloseClick, children }: ModalType) {
   if (!show) return ReactDOM.createPortal(<></>, document.body);

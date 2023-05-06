@@ -12,12 +12,15 @@ import TableBodyRow from "./TableBodyRow";
 import MainBody from "./MainBody";
 
 import type { SetStateAction } from "react";
-import type { DataHits, Data, InputStateSetter } from './types';
+import type { DataHits, Data, InputStateSetter } from "./types";
 
 setConfig(client);
 
 function App() {
-  const [sort, setSort] = useState({ column: "id", direction: "desc" } as Record<string, string>);
+  const [sort, setSort] = useState({
+    column: "id",
+    direction: "desc",
+  } as Record<string, string>);
   const [data, setData] = useState({} as Data);
   const [dataRows, setDataRows] = useState([] as JSX.Element[]);
   const [page, setPage] = useState(1);
@@ -58,8 +61,24 @@ function App() {
   const [sendUpdateData, setSendUpdateData] = useState(false);
 
   const addData = () => addDocument({ id, name, date, total, status, method });
-  const updateData = () => updateDocument({ id: updateId, name: updateName, date: updateDate, total: updateTotal, status: updateStatus, method: updateMethod });
-  const fetchingData = () => fetchData({ searchFilter, filterableAttributes, searchField, sort, page, setData });
+  const updateData = () =>
+    updateDocument({
+      id: updateId,
+      name: updateName,
+      date: updateDate,
+      total: updateTotal,
+      status: updateStatus,
+      method: updateMethod,
+    });
+  const fetchingData = () =>
+    fetchData({
+      searchFilter,
+      filterableAttributes,
+      searchField,
+      sort,
+      page,
+      setData,
+    });
 
   const searchFilter = {
     id: filterId,
@@ -81,18 +100,58 @@ function App() {
   };
 
   const table_headers = TABLE_HEADERS.map((columnShowName, index) => {
-    const filterGetters = [filterId, filterName, filterDate, filterTotal, filterStatus, filterMethod];
-    const filterSetter = [setFilterId, setFilterName, setFilterDate, setFilterTotal, setFilterStatus, setFilterMethod];
-    const inputType: ("text" | "date" | "number" | "select" | null)[] = ["text", "text", "date", "number", "select", "select", null];
+    const filterGetters = [
+      filterId,
+      filterName,
+      filterDate,
+      filterTotal,
+      filterStatus,
+      filterMethod,
+    ];
+    const filterSetter = [
+      setFilterId,
+      setFilterName,
+      setFilterDate,
+      setFilterTotal,
+      setFilterStatus,
+      setFilterMethod,
+    ];
+    const inputType: ("text" | "date" | "number" | "select" | null)[] = [
+      "text",
+      "text",
+      "date",
+      "number",
+      "select",
+      "select",
+      null,
+    ];
     return (
-      <TableHeader key={index} sort={sort} setSort={setSort} columnName={filterableAttributes[index]} columnShowName={columnShowName} isSortable={index < sortableAttributes.length} totalRows={data.estimatedTotalHits} filterGetter={filterGetters[index]} filterSetter={filterSetter[index]} inputType={inputType[index]} />
+      <TableHeader
+        key={index}
+        sort={sort}
+        setSort={setSort}
+        columnName={filterableAttributes[index]}
+        columnShowName={columnShowName}
+        isSortable={index < sortableAttributes.length}
+        totalRows={data.estimatedTotalHits}
+        filterGetter={filterGetters[index]}
+        filterSetter={filterSetter[index]}
+        inputType={inputType[index]}
+      />
     );
   });
 
   const set_rows = () => {
     calculateAndSetTotalPage(data.estimatedTotalHits, setTotalPage);
     const rows = data?.hits?.map((row) => {
-      return <TableBodyRow row={row} setUpdateFields={setUpdateFields} toggleUpdateModal={toggleUpdateModal} setDeleteId={setDeleteId} />;
+      return (
+        <TableBodyRow
+          row={row}
+          setUpdateFields={setUpdateFields}
+          toggleUpdateModal={toggleUpdateModal}
+          setDeleteId={setDeleteId}
+        />
+      );
     });
 
     setDataRows(rows);
@@ -104,7 +163,7 @@ function App() {
 
   useEffect(() => {
     set_rows();
-    return () => { };
+    return () => {};
   }, [data]);
 
   useEffect(() => {
@@ -143,21 +202,71 @@ function App() {
     };
   }, [sendUpdateData]);
 
-  const modalInputTypes: ("text" | "number" | "date" | "select")[] = ["text", "text", "date", "number", "select", "select"];
+  const modalInputTypes: ("text" | "number" | "date" | "select")[] = [
+    "text",
+    "text",
+    "date",
+    "number",
+    "select",
+    "select",
+  ];
 
   const modalAddGetter = [id, name, date, total, status, method];
-  const modalAddSetter = [setId, setName, setDate, setTotal, setStatus, setMethod];
+  const modalAddSetter = [
+    setId,
+    setName,
+    setDate,
+    setTotal,
+    setStatus,
+    setMethod,
+  ];
 
-  const modalUpdateGetter = [updateId, updateName, updateDate, updateTotal, updateStatus, updateMethod];
-  const modalUpdateSetter = [setUpdateId, setUpdateName, setUpdateDate, setUpdateTotal, setUpdateStatus, setUpdateMethod];
+  const modalUpdateGetter = [
+    updateId,
+    updateName,
+    updateDate,
+    updateTotal,
+    updateStatus,
+    updateMethod,
+  ];
+  const modalUpdateSetter = [
+    setUpdateId,
+    setUpdateName,
+    setUpdateDate,
+    setUpdateTotal,
+    setUpdateStatus,
+    setUpdateMethod,
+  ];
 
-  const modalContentInputs = (modalSetter: InputStateSetter[], modalGetter: (string | number)[], dataSender: ((value: SetStateAction<boolean>) => void), type: "add" | "update") => {
+  const modalContentInputs = (
+    modalSetter: InputStateSetter[],
+    modalGetter: (string | number)[],
+    dataSender: (value: SetStateAction<boolean>) => void,
+    type: "add" | "update"
+  ) => {
     const result = filterableAttributes.map((value, index) => {
       return (
-        <ModalContentInput columnName={value} columnShowName={TABLE_HEADERS.slice(0, -1)[index]} inputType={modalInputTypes[index]} modalGetter={modalGetter[index]} modalSetter={modalSetter[index]} isDisabled={false} />
+        <ModalContentInput
+          columnName={value}
+          columnShowName={TABLE_HEADERS.slice(0, -1)[index]}
+          inputType={modalInputTypes[index]}
+          modalGetter={modalGetter[index]}
+          modalSetter={modalSetter[index]}
+          isDisabled={false}
+        />
       );
     });
-    return <div className="flex flex-col"><div className="flex flex-col space-y-2">{result}</div><button className="bg-green-500 rounded-md py-2 mt-6" onClick={() => dataSender(true)}>{type.toUpperCase()}</button></div>;
+    return (
+      <div className="flex flex-col">
+        <div className="flex flex-col space-y-2">{result}</div>
+        <button
+          className="bg-green-500 rounded-md py-2 mt-6"
+          onClick={() => dataSender(true)}
+        >
+          {type.toUpperCase()}
+        </button>
+      </div>
+    );
   };
 
   return (
@@ -169,7 +278,12 @@ function App() {
           if (isShowingUpdateModal) toggleUpdateModal();
         }}
       >
-        {modalContentInputs(modalAddSetter, modalAddGetter, setSendAddData, "add")}
+        {modalContentInputs(
+          modalAddSetter,
+          modalAddGetter,
+          setSendAddData,
+          "add"
+        )}
       </Modal>
 
       <Modal
@@ -179,9 +293,24 @@ function App() {
           if (isShowingAddModal) toggleAddModal();
         }}
       >
-        {modalContentInputs(modalUpdateSetter, modalUpdateGetter, setSendUpdateData, "update")}
+        {modalContentInputs(
+          modalUpdateSetter,
+          modalUpdateGetter,
+          setSendUpdateData,
+          "update"
+        )}
       </Modal>
-      <MainBody totalHits={data.estimatedTotalHits} searchField={searchField} setSearchField={setSearchField} totalPage={totalPage} setPage={setPage} page={page} toggleAddModal={toggleAddModal} tableHeaders={table_headers} dataRows={dataRows}/>
+      <MainBody
+        totalHits={data.estimatedTotalHits}
+        searchField={searchField}
+        setSearchField={setSearchField}
+        totalPage={totalPage}
+        setPage={setPage}
+        page={page}
+        toggleAddModal={toggleAddModal}
+        tableHeaders={table_headers}
+        dataRows={dataRows}
+      />
     </>
   );
 }

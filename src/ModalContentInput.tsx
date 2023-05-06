@@ -8,32 +8,42 @@ type ModalContentInputParameters = {
   modalSetter: InputStateSetter;
   inputType: "text" | "number" | "date" | "select";
   isDisabled: boolean;
-}
+};
 
-function ModalContentInput({ isDisabled, columnName, columnShowName, inputType, modalGetter, modalSetter }: ModalContentInputParameters) {
+function ModalContentInput({
+  isDisabled,
+  columnName,
+  columnShowName,
+  inputType,
+  modalGetter,
+  modalSetter,
+}: ModalContentInputParameters) {
   let inputTag = (
     <input
       className="border-2 border-neutral-400 rounded-md py-1 px-2"
       type={inputType}
       value={modalGetter}
       onChange={(event) => {
-        modalSetter(event.target.value as (string & number));
+        modalSetter(event.target.value as string & number);
       }}
       disabled={isDisabled}
     />
   );
 
   if (inputType === "select") {
-    const paymentName = columnName === "status" ? PAYMENT_STATUS : PAYMENT_METHODS;
+    const paymentName =
+      columnName === "status" ? PAYMENT_STATUS : PAYMENT_METHODS;
     inputTag = (
       <select
         className="py-1 px-2 bg-white rounded-md border-2 border-neutral-400"
         value={modalGetter}
         onChange={(event) => {
-          modalSetter(event.target.value as (string & number));
+          modalSetter(event.target.value as string & number);
         }}
       >
-        {["", ...paymentName].map((value) => <option>{value}</option>)}
+        {["", ...paymentName].map((value) => (
+          <option>{value}</option>
+        ))}
       </select>
     );
   }

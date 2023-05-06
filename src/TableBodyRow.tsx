@@ -1,10 +1,10 @@
-import type { DataHits } from './types';
-import type { SetStateAction } from 'react';
+import type { DataHits } from "./types";
+import type { SetStateAction } from "react";
 import moment from "moment";
 import { AiFillDelete } from "react-icons/ai";
 import { FaPencilAlt } from "react-icons/fa";
-import PaymentMethod from './PaymentMethod';
-import PaymentStatus from './PaymentStatus';
+import PaymentMethod from "./PaymentMethod";
+import PaymentStatus from "./PaymentStatus";
 import { IconContext } from "react-icons";
 
 type TableBodyRowType = {
@@ -14,7 +14,12 @@ type TableBodyRowType = {
   setDeleteId: (value: SetStateAction<string>) => void;
 };
 
-function TableBodyRow({ row, setUpdateFields, toggleUpdateModal, setDeleteId }: TableBodyRowType) {
+function TableBodyRow({
+  row,
+  setUpdateFields,
+  toggleUpdateModal,
+  setDeleteId,
+}: TableBodyRowType) {
   const date = Date.parse(row["date"]);
   const formatted_date = moment(date).format("ll");
 
@@ -29,9 +34,7 @@ function TableBodyRow({ row, setUpdateFields, toggleUpdateModal, setDeleteId }: 
       <td className="pl-5">
         <PaymentStatus status={row["status"]} />
       </td>
-      <IconContext.Provider
-        value={{ className: "text-neutral-800 text-2xl" }}
-      >
+      <IconContext.Provider value={{ className: "text-neutral-800 text-2xl" }}>
         <td className="pl-5">
           <PaymentMethod method={row["method"]} />
         </td>

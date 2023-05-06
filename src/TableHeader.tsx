@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction } from "react";
 import { PAYMENT_METHODS, PAYMENT_STATUS } from "./constants";
-import type { MouseEvent } from 'react';
+import type { MouseEvent } from "react";
 
 type TableHeaderParameters = {
   sort: Record<string, string>;
@@ -13,9 +13,20 @@ type TableHeaderParameters = {
   filterSetter: Dispatch<SetStateAction<string>>;
   inputType: "text" | "number" | "date" | "select" | null;
   key: number;
-}
+};
 
-function TableHeader({ key, sort, setSort, columnName, columnShowName, isSortable, totalRows, filterGetter, filterSetter, inputType }: TableHeaderParameters) {
+function TableHeader({
+  key,
+  sort,
+  setSort,
+  columnName,
+  columnShowName,
+  isSortable,
+  totalRows,
+  filterGetter,
+  filterSetter,
+  inputType,
+}: TableHeaderParameters) {
   const sortClickHandler = (event: MouseEvent, column: string) => {
     event.preventDefault();
     if (column == sort.column) {
@@ -33,9 +44,7 @@ function TableHeader({ key, sort, setSort, columnName, columnShowName, isSortabl
       return (
         <button
           className="flex justify-left"
-          onClick={(event) =>
-            sortClickHandler(event, columnName)
-          }
+          onClick={(event) => sortClickHandler(event, columnName)}
         >
           <div className="py-2 font-black">{columnShowName}</div>
         </button>
@@ -62,7 +71,8 @@ function TableHeader({ key, sort, setSort, columnName, columnShowName, isSortabl
   }
 
   if (inputType && inputType === "select") {
-    const paymentName = columnName === "status" ? PAYMENT_STATUS : PAYMENT_METHODS;
+    const paymentName =
+      columnName === "status" ? PAYMENT_STATUS : PAYMENT_METHODS;
     inputTag = (
       <select
         className="p-1 bg-white rounded-md"
@@ -71,7 +81,9 @@ function TableHeader({ key, sort, setSort, columnName, columnShowName, isSortabl
           filterSetter(event.target.value);
         }}
       >
-        {["", ...paymentName].map((value) => <option>{value}</option>)}
+        {["", ...paymentName].map((value) => (
+          <option>{value}</option>
+        ))}
       </select>
     );
   }
