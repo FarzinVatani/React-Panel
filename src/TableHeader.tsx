@@ -12,9 +12,10 @@ type TableHeaderParameters = {
   filterGetter: string;
   filterSetter: Dispatch<SetStateAction<string>>;
   inputType: "text" | "number" | "date" | "select" | null;
+  key: number;
 }
 
-function TableHeader({ sort, setSort, columnName, columnShowName, isSortable, totalRows, filterGetter, filterSetter, inputType }: TableHeaderParameters) {
+function TableHeader({ key, sort, setSort, columnName, columnShowName, isSortable, totalRows, filterGetter, filterSetter, inputType }: TableHeaderParameters) {
   const sortClickHandler = (event: MouseEvent, column: string) => {
     event.preventDefault();
     if (column == sort.column) {
@@ -76,10 +77,12 @@ function TableHeader({ sort, setSort, columnName, columnShowName, isSortable, to
   }
 
   return (
-    <>
-      {title()}
-      {inputTag}
-    </>
+    <th key={key} className="border border-slate-400 p-5">
+      <div className="flex flex-col items-left">
+        {title()}
+        {inputTag}
+      </div>
+    </th>
   );
 }
 
