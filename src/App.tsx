@@ -1,24 +1,27 @@
 import "./App.css";
-import { client } from "./utility";
+import { client, addDocument, updateDocument, fetchData } from "./meilisearch";
 import moment from "moment";
 import { FaPlus, FaPencilAlt } from "react-icons/fa";
 import { AiFillDelete } from "react-icons/ai";
 import { IconContext } from "react-icons";
-import { useState, useEffect, MouseEvent } from "react";
-import PaymentStatus from "./PaymentStatus";
+import { useState, useEffect } from "react";
+import { useToggle } from "./hooks";
 import { sortableAttributes, filterableAttributes, setConfig } from "./config";
 import { TABLE_HEADERS } from "./constants";
-import { useToggle } from "./hooks";
+import PaymentStatus from "./PaymentStatus";
 import PaymentMethod from "./PaymentMethod";
 import Modal from "./Modal";
+import { calculateAndSetTotalPage } from "./utility";
 
 import type { SetStateAction } from "react";
-import type { DataHits, Data, Status, Method } from './types';
+import type { DataHits, Data, InputStateSetter } from './types';
+import TableHeader from "./TableHeader";
+import ModalContentInput from "./ModalContentInput";
 
 setConfig(client);
 
 function App() {
-  const [sort, setSort] = useState({ column: "id", direction: "desc" });
+  const [sort, setSort] = useState({ column: "id", direction: "desc" } as Record<string, string>);
   const [data, setData] = useState({} as Data);
   const [dataRows, setDataRows] = useState([] as JSX.Element[]);
   const [page, setPage] = useState(1);
@@ -28,8 +31,8 @@ function App() {
   const [filterName, setFilterName] = useState("");
   const [filterDate, setFilterDate] = useState("");
   const [filterTotal, setFilterTotal] = useState("");
-  const [filterStatus, setFilterStatus] = useState("" as Status | "");
-  const [filterMethod, setFilterMethod] = useState("" as Method | "");
+  const [filterStatus, setFilterStatus] = useState("");
+  const [filterMethod, setFilterMethod] = useState("");
 
   const [searchField, setSearchField] = useState("");
 
@@ -45,205 +48,44 @@ function App() {
   const [name, setName] = useState("");
   const [date, setDate] = useState("");
   const [total, setTotal] = useState(0);
-  const [status, setStatus] = useState("Paid" as Status);
-  const [method, setMethod] = useState("Paypal" as Method);
+  const [status, setStatus] = useState("Paid");
+  const [method, setMethod] = useState("Paypal");
 
   const [updateId, setUpdateId] = useState("");
   const [updateName, setUpdateName] = useState("");
   const [updateDate, setUpdateDate] = useState("");
   const [updateTotal, setUpdateTotal] = useState(0);
-  const [updateStatus, setUpdateStatus] = useState("Paid" as Status);
-  const [updateMethod, setUpdateMethod] = useState("Paypal" as Method);
+  const [updateStatus, setUpdateStatus] = useState("Paid");
+  const [updateMethod, setUpdateMethod] = useState("Paypal");
 
   const [sendAddData, setSendAddData] = useState(false);
   const [sendUpdateData, setSendUpdateData] = useState(false);
 
-  const addDocument = () => {
-    client
-      .index("panel")
-      .addDocuments([{ id, name, date, total, status, method }]);
-  };
-  const updateDocument = () => {
-    client.index("panel").updateDocuments([
-      {
-        id: updateId,
-        name: updateName,
-        date: updateDate,
-        total: updateTotal,
-        status: updateStatus,
-        method: updateMethod,
-      },
-    ]);
-  };
+  const addData = () => addDocument({ id, name, date, total, status, method });
+  const updateData = () => updateDocument({ id: updateId, name: updateName, date: updateDate, total: updateTotal, status: updateStatus, method: updateMethod });
 
-  const sortClickHandler = (event: MouseEvent, column: string) => {
-    event.preventDefault();
-    if (column == sort.column) {
-      setSort({
-        column: column,
-        direction: sort.direction === "asc" ? "desc" : "asc",
-      });
-    } else {
-      setSort({ column: column, direction: "asc" });
-    }
-  };
-
-  const table_headers = TABLE_HEADERS.map((columnName, index) => {
-    const button = () => {
-      if (index < sortableAttributes.length) {
-        return (
-          <button
-            className="flex justify-left"
-            onClick={(event) =>
-              sortClickHandler(event, sortableAttributes[index])
-            }
-          >
-            <div className="py-2 font-black">{columnName}</div>
-          </button>
-        );
-      }
-
-      return <div className="py-2 font-black">{columnName}</div>;
-    };
-
-    const filter_input = () => {
-      if (index < filterableAttributes.length) {
-        switch (index) {
-          case 0:
-            return (
-              <input
-                placeholder={`Filter ID (${data.estimatedTotalHits})`}
-                className="w-20 rounded-md py-1 px-2"
-                type="string"
-                value={filterId}
-                onChange={(event) => {
-                  setFilterId(event.target.value);
-                }}
-              />
-            );
-          case 1:
-            return (
-              <input
-                placeholder={`Filter Name (${data.estimatedTotalHits})`}
-                className="w-40 rounded-md py-1 px-2"
-                type="string"
-                value={filterName}
-                onChange={(event) => {
-                  setFilterName(event.target.value);
-                }}
-              />
-            );
-          case 2:
-            return (
-              <input
-                placeholder={`Filter Date (${data.estimatedTotalHits})`}
-                className="w-36 rounded-md py-1 px-2"
-                type="date"
-                value={filterDate}
-                onChange={(event) => {
-                  setFilterDate(event.target.value);
-                }}
-              />
-            );
-          case 3:
-            return (
-              <input
-                placeholder={`Filter Total (${data.estimatedTotalHits})`}
-                className="w-24 rounded-md py-1 px-2"
-                type="number"
-                value={filterTotal}
-                onChange={(event) => {
-                  setFilterTotal(event.target.value.toString());
-                }}
-              />
-            );
-          case 4:
-            return (
-              <select
-                className="p-1 bg-white rounded-md"
-                value={filterStatus}
-                onChange={(event) => {
-                  setFilterStatus(event.target.value as Status);
-                }}
-              >
-                <option></option>
-                <option>Paid</option>
-                <option>Chargeback</option>
-                <option>Pending</option>
-                <option>Expired</option>
-                <option>Failed</option>
-              </select>
-            );
-          case 5:
-            return (
-              <select
-                className="p-1 bg-white rounded-md"
-                value={filterMethod}
-                onChange={(event) => {
-                  setFilterMethod(event.target.value as Method);
-                }}
-              >
-                <option></option>
-                <option>Mastercard</option>
-                <option>Visa</option>
-                <option>Paypal</option>
-              </select>
-            );
-        }
-      } else return "";
-    };
-
+  const table_headers = TABLE_HEADERS.map((columnShowName, index) => {
+    const filterGetters = [filterId, filterName, filterDate, filterTotal, filterStatus, filterMethod];
+    const filterSetter = [setFilterId, setFilterName, setFilterDate, setFilterTotal, setFilterStatus, setFilterMethod];
+    const inputType: ("text" | "date" | "number" | "select" | null)[] = ["text", "text", "date", "number", "select", "select", null];
     return (
       <th key={index} className="border border-slate-400 p-5">
         <div className="flex flex-col items-left">
-          {button()}
-          {filter_input()}
+          <TableHeader sort={sort} setSort={setSort} columnName={filterableAttributes[index]} columnShowName={columnShowName} isSortable={index < sortableAttributes.length} totalRows={data.estimatedTotalHits} filterGetter={filterGetters[index]} filterSetter={filterSetter[index]} inputType={inputType[index]} />
         </div>
       </th>
     );
   });
 
-  const searchFilter = [
-    filterId,
-    filterName,
-    filterDate,
-    filterTotal,
-    filterStatus,
-    filterMethod,
-  ];
-  const fetchData = () => {
-    const filterQuery = searchFilter
-      .map((value, index) => {
-        if (!value) return "";
-        if (index === 2) {
-          const date = new Date(filterDate);
-          return `(date >= ${date.getTime()} AND date < ${date.setDate(
-            date.getDate() + 1
-          )})`;
-        }
-        return `${filterableAttributes[index]} = "${value}"`;
-      })
-      .filter((value) => value)
-      .join(" AND ");
-
-    client
-      .index("panel")
-      .search(searchField, {
-        sort: [`${sort.column}:${sort.direction}`],
-        filter: filterQuery,
-        limit: 20,
-        offset: 20 * (page - 1),
-      })
-      .then((result) => setData({ hits: result["hits"], estimatedTotalHits: result["estimatedTotalHits"] } as Data));
+  const searchFilter = {
+    id: filterId,
+    name: filterName,
+    date: filterDate,
+    total: filterTotal,
+    status: filterStatus,
+    method: filterMethod,
   };
-
-  const calculateAndSetTotalPage = () => {
-    const totalRows = data.estimatedTotalHits;
-    let totalPages = totalRows / 20;
-    setTotalPage(
-      totalRows % 20 == 0 ? Math.round(totalPages) : Math.floor(totalPages) + 1
-    );
-  };
+  const fetchingData = () => fetchData({ searchFilter, filterableAttributes, searchField, sort, page, setData });
 
   const [deleteId, setDeleteId] = useState("");
   const setUpdateFields = (field: DataHits) => {
@@ -256,7 +98,7 @@ function App() {
   };
 
   const set_rows = () => {
-    calculateAndSetTotalPage();
+    calculateAndSetTotalPage(data.estimatedTotalHits, setTotalPage);
     const rows = data?.hits?.map((row) => {
       const date = Date.parse(row["date"]);
       const formatted_date = moment(date).format("ll");
@@ -306,8 +148,8 @@ function App() {
   };
 
   useEffect(() => {
-    fetchData();
-  }, [sort, page, searchField, ...searchFilter]);
+    fetchingData();
+  }, [sort, page, searchField, ...Object.values(searchFilter)]);
 
   useEffect(() => {
     set_rows();
@@ -322,7 +164,7 @@ function App() {
           .index("panel")
           .deleteDocument(deleteId)
           .then(() => {
-            setTimeout(fetchData, 200);
+            setTimeout(fetchingData, 200);
           });
       }
     };
@@ -332,9 +174,9 @@ function App() {
     setSendAddData(false);
     return () => {
       if (sendAddData) {
-        addDocument();
+        addData();
         toggleAddModal();
-        setTimeout(fetchData, 200);
+        setTimeout(fetchingData, 200);
       }
     };
   }, [sendAddData]);
@@ -343,153 +185,28 @@ function App() {
     setSendUpdateData(false);
     return () => {
       if (sendUpdateData) {
-        updateDocument();
+        updateData();
         toggleUpdateModal();
-        setTimeout(fetchData, 200);
+        setTimeout(fetchingData, 200);
       }
     };
   }, [sendUpdateData]);
 
-  const modalContentAdd = () => {
-    const fields = [id, name, date, total];
-    const setFields = [setId, setName, setDate, setTotal];
-    const types = ["number", "text", "date", "number"];
+  const modalInputTypes: ("text" | "number" | "date" | "select")[] = ["text", "text", "date", "number", "select", "select"];
 
-    const inputs = () =>
-      filterableAttributes.slice(0, 4).map((value, index) => {
-        return (
-          <label className="w-full flex justify-between items-center">
-            <span className="pr-5">{value.toUpperCase()}:</span>
-            <input
-              className="border-2 border-neutral-400 rounded-md py-1 px-2"
-              type={types[index]}
-              value={fields[index]}
-              onChange={(event) => setFields[index](event.target.value as SetStateAction<number> & SetStateAction<string>)}
-            />
-          </label>
-        );
-      });
+  const modalAddGetter = [id, name, date, total, status, method];
+  const modalAddSetter = [setId, setName, setDate, setTotal, setStatus, setMethod];
 
-    const select_inputs = (
-      <>
-        {inputs()}
-        <label className="w-full flex justify-between items-center">
-          <span className="pr-5">STATUS:</span>
-          <select
-            className="py-1 px-2 bg-white rounded-md border-2 border-neutral-400"
-            value={status}
-            onChange={(event) => {
-              setStatus(event.target.value as Status);
-            }}
-          >
-            <option>Paid</option>
-            <option>Chargeback</option>
-            <option>Pending</option>
-            <option>Expired</option>
-            <option>Failed</option>
-          </select>
-        </label>
+  const modalUpdateGetter = [updateId, updateName, updateDate, updateTotal, updateStatus, updateMethod];
+  const modalUpdateSetter = [setUpdateId, setUpdateName, setUpdateDate, setUpdateTotal, setUpdateStatus, setUpdateMethod];
 
-        <label className="w-full flex justify-between items-center">
-          <span className="pr-5">METHOD:</span>
-          <select
-            className="py-1 px-2 bg-white rounded-md border-2 border-neutral-400"
-            value={method}
-            onChange={(event) => {
-              setMethod(event.target.value as Method);
-            }}
-          >
-            <option>Mastercard</option>
-            <option>Visa</option>
-            <option>Paypal</option>
-          </select>
-        </label>
-      </>
-    );
-
-    return (
-      <div className="flex flex-col items-around space-y-2">
-        {select_inputs}
-        <button
-          onClick={() => {
-            setSendAddData(true);
-          }}
-        >
-          ADD
-        </button>
-      </div>
-    );
-  };
-
-  const modalContentUpdate = () => {
-    const fields = [updateId, updateName, updateDate, updateTotal];
-    const setFields = [
-      setUpdateId,
-      setUpdateName,
-      setUpdateDate,
-      setUpdateTotal,
-    ];
-    const types = ["number", "text", "text", "number"];
-
-    const inputs = () =>
-      filterableAttributes.slice(0, 4).map((value, index) => {
-        return (
-          <label className="w-full flex justify-between items-center">
-            <span className="pr-5">{value.toUpperCase()}:</span>
-            <input
-              className="border-2 border-neutral-400 rounded-md py-1 px-2"
-              type={types[index]}
-              value={fields[index]}
-              onChange={(event) => setFields[index](event.target.value as (string & number))}
-              disabled={index === 0}
-            />
-          </label>
-        );
-      });
-
-    const select_inputs = (
-      <>
-        {inputs()}
-        <label className="w-full flex justify-between items-center">
-          <span className="pr-5">STATUS:</span>
-          <select
-            className="py-1 px-2 bg-white rounded-md border-2 border-neutral-400"
-            value={updateStatus}
-            onChange={(event) => {
-              setUpdateStatus(event.target.value as Status);
-            }}
-          >
-            <option>Paid</option>
-            <option>Chargeback</option>
-            <option>Pending</option>
-            <option>Expired</option>
-            <option>Failed</option>
-          </select>
-        </label>
-
-        <label className="w-full flex justify-between items-center">
-          <span className="pr-5">METHOD:</span>
-          <select
-            className="py-1 px-2 bg-white rounded-md border-2 border-neutral-400"
-            value={updateMethod}
-            onChange={(event) => {
-              setUpdateMethod(event.target.value as Method);
-            }}
-          >
-            <option>Mastercard</option>
-            <option>Visa</option>
-            <option>Paypal</option>
-          </select>
-        </label>
-      </>
-    );
-
-    return (
-      <div className="flex flex-col items-around space-y-2">
-        {select_inputs}
-        <button onClick={() => setSendUpdateData(true)}>UPDATE</button>
-      </div>
-    );
+  const modalContentInputs = (modalSetter: InputStateSetter[], modalGetter: (string | number)[], dataSender: ((value: SetStateAction<boolean>) => void), type: "add" | "update") => {
+    const result = filterableAttributes.map((value, index) => {
+      return (
+        <ModalContentInput columnName={value} columnShowName={TABLE_HEADERS.slice(0, -1)[index]} inputType={modalInputTypes[index]} modalGetter={modalGetter[index]} modalSetter={modalSetter[index]} isDisabled={false} />
+      );
+    });
+    return <div className="flex flex-col"><div className="flex flex-col space-y-2">{result}</div><button className="bg-green-500 rounded-md py-2 mt-6" onClick={() => dataSender(true)}>{type.toUpperCase()}</button></div>;
   };
 
   return (
@@ -501,7 +218,7 @@ function App() {
           if (isShowingUpdateModal) toggleUpdateModal();
         }}
       >
-        {modalContentAdd()}
+        {modalContentInputs(modalAddSetter, modalAddGetter, setSendAddData, "add")}
       </Modal>
 
       <Modal
@@ -511,7 +228,7 @@ function App() {
           if (isShowingAddModal) toggleAddModal();
         }}
       >
-        {modalContentUpdate()}
+        {modalContentInputs(modalUpdateSetter, modalUpdateGetter, setSendUpdateData, "update")}
       </Modal>
 
       <div className="absolute lg:relative flex flex-col items-center">

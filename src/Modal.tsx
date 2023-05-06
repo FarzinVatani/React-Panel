@@ -18,9 +18,9 @@ function Modal({ show, onCloseClick, children }: ModalType) {
       />
       <div className="flex flex-col bg-white p-4 rounded-md">
         {children}
-        <div className="mt-8 w-full">
+        <div className="mt-2 w-full">
           <button
-            className="bg-red-500 text-red-950 px-4 py-1 rounded-md text-md"
+            className="bg-red-500 text-red-950 w-full py-2 rounded-md text-md"
             onClick={onCloseClick}
           >
             Close
