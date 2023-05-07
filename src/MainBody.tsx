@@ -1,6 +1,7 @@
 import { SetStateAction } from "react";
 import { FaPlus } from "react-icons/fa";
 import { IconContext } from "react-icons";
+import Table from "./Table";
 
 type MainBodyParameters = {
   totalHits: number;
@@ -62,12 +63,7 @@ function MainBody({
         </IconContext.Provider>
       </div>
       <div className="w-full h-full flex justify-center">
-        <table className="table-auto text-left text-sm">
-          <thead className="bg-neutral-300">
-            <tr>{tableHeaders}</tr>
-          </thead>
-          <tbody className="">{dataRows}</tbody>
-        </table>
+        <Table tableHeaders={tableHeaders} dataRows={dataRows} />
       </div>
     </div>
   );

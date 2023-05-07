@@ -99,7 +99,7 @@ function App() {
     setUpdateMethod(field.method);
   };
 
-  const table_headers = TABLE_HEADERS.map((columnShowName, index) => {
+  const tableHeaders = TABLE_HEADERS.map((columnShowName, index) => {
     const filterGetters = [
       filterId,
       filterName,
@@ -141,7 +141,7 @@ function App() {
     );
   });
 
-  const set_rows = () => {
+  const setRows = () => {
     calculateAndSetTotalPage(data.estimatedTotalHits, setTotalPage);
     const rows = data?.hits?.map((row) => {
       return (
@@ -162,7 +162,7 @@ function App() {
   }, [sort, page, searchField, ...Object.values(searchFilter)]);
 
   useEffect(() => {
-    set_rows();
+    setRows();
     return () => {};
   }, [data]);
 
@@ -308,7 +308,7 @@ function App() {
         setPage={setPage}
         page={page}
         toggleAddModal={toggleAddModal}
-        tableHeaders={table_headers}
+        tableHeaders={tableHeaders}
         dataRows={dataRows}
       />
     </>
